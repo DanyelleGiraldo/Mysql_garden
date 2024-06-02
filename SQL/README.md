@@ -520,125 +520,131 @@
 
 -- Subconsultas
 
--- 1. Nombre del cliente con mayor límite de crédito.
-SELECT nombre_cliente
-FROM cliente
-WHERE limite_credito = (
-    SELECT MAX(limite_credito)
+1. **Nombre del cliente con mayor límite de crédito:**
+    ```sql
+    SELECT nombre_cliente
     FROM cliente
-);
+    WHERE limite_credito = (SELECT MAX(limite_credito) FROM cliente);
+    ```
 
--- 2. Nombre del producto con el precio de venta más caro.
-SELECT nombre
-FROM producto
-WHERE precio_venta = (
-    SELECT MAX(precio_venta)
+2. **Nombre del producto con precio de venta más caro:**
+    ```sql
+    SELECT nombre
     FROM producto
-);
+    WHERE precio_venta = (SELECT MAX(precio_venta) FROM producto);
+    ```
 
--- 3. Nombre del producto con más unidades vendidas.
-SELECT p.nombre
-FROM producto p
-JOIN detalle_pedido dp ON p.codigo_producto = dp.codigo_producto_pedido
-GROUP BY p.nombre
-ORDER BY SUM(dp.cantidad) DESC
-LIMIT 1;
+3. **Nombre del producto más vendido por unidades:**
+    ```sql
+    SELECT p.nombre
+    FROM producto p
+    JOIN detalle_pedido dp ON p.codigo_producto = dp.codigo_producto_pedido
+    GROUP BY p.nombre
+    ORDER BY SUM(dp.cantidad) DESC
+    LIMIT 1;
+    ```
 
--- 4. Clientes con límite de crédito mayor que los pagos que han realizado.
-SELECT c.nombre_cliente
-FROM cliente c
-WHERE limite_credito > (
-    SELECT SUM(dp.cantidad * dp.precio_unidad)
-    FROM pedido p
-    JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle
-    WHERE p.codigo_cliente_pedido = c.id_cliente
-);
+4. **Clientes cuyo límite de crédito es mayor que los pagos realizados:**
+    ```sql
+    SELECT c.nombre_cliente
+    FROM cliente c
+    WHERE limite_credito > (SELECT SUM(dp.cantidad * dp.precio_unidad) FROM pedido p  
+    JOIN detalle_pedido dp on dp.codigo_pedido_detalle = p.codigo_pedido 
+    WHERE p.codigo_cliente_pedido = c.id_cliente );
+    ```
 
--- 5. Producto con más unidades en stock.
-SELECT nombre
-FROM producto
-WHERE cantidad_stock = (
-    SELECT MAX(cantidad_stock)
+5. **Producto con más unidades en stock:**
+    ```sql
+    SELECT nombre
     FROM producto
-);
+    WHERE cantidad_stock = (SELECT MAX(cantidad_stock) FROM producto);
+    ```
 
--- 6. Producto con menos unidades en stock.
-SELECT nombre
-FROM producto
-WHERE cantidad_stock = (
-    SELECT MIN(cantidad_stock)
+6. **Producto con menos unidades en stock:**
+    ```sql
+    SELECT nombre
     FROM producto
-);
+    WHERE cantidad_stock = (SELECT MIN(cantidad_stock) FROM producto);
+    ```
 
--- 7. Nombre, apellidos y email de los empleados a cargo de Alberto Soria.
-SELECT nombre, apellido1, apellido2, email
-FROM empleado
-WHERE codigo_jefe = (
-    SELECT id_empleado
+7. **Nombre, apellidos y email de los empleados a cargo de Alberto Soria:**
+    ```sql
+    SELECT nombre, apellido1, apellido2, email
     FROM empleado
-    WHERE nombre = 'Alberto' AND apellido1 = 'Soria'
-);
+    WHERE codigo_jefe = (SELECT id_empleado FROM empleado WHERE nombre = 'Alberto' AND apellido1 = 'Soria');
+    ```
 
--- Consultas Variadas
+-- Consultas variadas
 
--- 1. Listado de clientes con nombre y número de pedidos realizados.
-SELECT c.nombre_cliente AS nombre_cliente, 
-       COUNT(dp.codigo_pedido_detalle) AS numero_pedidos
-FROM cliente c
-LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
-LEFT JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle
-GROUP BY c.nombre_cliente;
+1. **Listado de clientes con cantidad de pedidos realizados:**
+    ```sql
+    SELECT c.nombre_cliente AS nombre_cliente, 
+           COUNT(dp.codigo_pedido_detalle) AS numero_pedidos
+    FROM cliente c
+    LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+    LEFT JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle
+    GROUP BY c.nombre_cliente;
+    ```
 
--- 2. Listado de clientes con nombre y total pagado.
-SELECT c.nombre_cliente, 
-       COALESCE(SUM(dp.precio_unidad * dp.cantidad), 0) AS total_pagado
-FROM cliente c
-LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
-JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle 
-GROUP BY c.nombre_cliente;
+2. **Listado de clientes con total pagado por cada uno:**
+    ```sql
+    SELECT c.nombre_cliente, 
+           COALESCE(SUM(dp.precio_unidad * dp.cantidad), 0) AS total_pagado
+    FROM cliente c
+    LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+    JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle 
+    GROUP BY c.nombre_cliente;
+    ```
 
--- 3. Clientes que hicieron pedidos en 2008 ordenados alfabéticamente.
-SELECT DISTINCT c.nombre_cliente
-FROM cliente c
-JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
-WHERE YEAR(p.fecha_pedido) = 2008
-ORDER BY c.nombre_cliente;
+3. **Clientes que hicieron pedidos en 2008, ordenados alfabéticamente:**
+    ```sql
+    SELECT DISTINCT c.nombre_cliente
+    FROM cliente c
+    JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+    WHERE YEAR(p.fecha_pedido) = 2008
+    ORDER BY c.nombre_cliente;
+    ```
 
--- 4. Cliente, representante de ventas y teléfono de la oficina para clientes sin pagos.
-SELECT c.nombre_cliente, 
-       e.nombre AS nombre_representante, 
-       e.apellido1 AS apellido_representante, 
-       o.telefono AS telefono_oficina
-FROM cliente c
-JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
-JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
-WHERE NOT EXISTS (SELECT 1 FROM pedido p WHERE c.id_cliente = p.codigo_cliente_pedido);
+4. **Nombre de cliente, representante de ventas y teléfono de la oficina:**
+    ```sql
+    SELECT c.nombre_cliente, 
+           e.nombre AS nombre_representante, 
+           e.apellido1 AS apellido_representante, 
+           o.telefono AS telefono_oficina
+    FROM cliente c
+    JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
+    JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
+    WHERE NOT EXISTS (SELECT 1 FROM pedido p WHERE c.id_cliente = p.codigo_cliente_pedido);
+    ```
 
--- 5. Listado de clientes con representantes de ventas y ciudades de sus oficinas.
-SELECT c.nombre_cliente AS nombre_cliente, 
-       e.nombre AS nombre_representante, 
-       e.apellido1 AS apellido_representante, 
-       o.ciudad AS ciudad_oficina
-FROM cliente c
-JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
-JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina;
+5. **Listado de clientes con nombre del representante de ventas y ciudad de la oficina:**
+    ```sql
+    SELECT c.nombre_cliente AS nombre_cliente, 
+           e.nombre AS nombre_representante, 
+           e.apellido1 AS apellido_representante, 
+           o.ciudad AS ciudad_oficina
+    FROM cliente c
+    JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
+    JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina;
+    ```
 
--- 6. Empleados no representantes de ventas con nombre, apellidos, puesto y teléfono de oficina.
-SELECT e.nombre, 
-       e.apellido1, 
-       e.apellido2, 
-       e.puesto, 
-       o.telefono
-FROM empleado e
-JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
-WHERE e.id_empleado NOT IN (SELECT codigo_empleado_rep_ventas FROM cliente);
+6. **Empleados de oficinas que no son representantes de ventas:**
+    ```sql
+    SELECT e.nombre, 
+           e.apellido1, 
+           e.apellido2, 
+           e.puesto, 
+           o.telefono
+    FROM empleado e
+    JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
+    WHERE e.id_empleado NOT IN (SELECT codigo_empleado_rep_ventas FROM cliente);
+    ```
 
--- 7. Ciudades con número de empleados en sus oficinas.
-SELECT o.ciudad, 
-       COUNT(e.id_empleado) AS numero_empleados
-FROM oficina o
-JOIN empleado e ON o.codigo_oficina = e.codigo_oficina_empleado
-GROUP BY o.ciudad;
-
-
-
+7. **Ciudades con número de empleados en las oficinas:**
+    ```sql
+    SELECT o.ciudad, 
+           COUNT(e.id_empleado) AS numero_empleados
+    FROM oficina o
+    JOIN empleado e ON o.codigo_oficina = e.codigo_oficina_empleado
+    GROUP BY o.ciudad;
+    ```
