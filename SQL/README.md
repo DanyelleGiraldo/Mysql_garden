@@ -1,8 +1,4 @@
-# Consultas BD Jardineria
-
-# Consultas SQL sobre una Base de Datos Empresarial
-
-Este archivo contiene una serie de consultas SQL diseñadas para interactuar con una base de datos empresarial. Las consultas están organizadas en diferentes categorías para facilitar su comprensión y uso.
+# Consultas SQL sobre una base de datos de jardineria
 
 ## Consultas sobre una Tabla
 
@@ -133,259 +129,516 @@ Este archivo contiene una serie de consultas SQL diseñadas para interactuar con
 
 ## Consultas Multitabla (Composición Interna)
 
-1. **Nombre de cada cliente y su representante de ventas:**
+1. **Listado con el nombre de cada cliente y el nombre y apellido de su representante de ventas:**
     ```sql
-    SELECT c.nombre_cliente, e.nombre, e.apellido1 
-    FROM cliente c, empleado e 
+    SELECT c.nombre_cliente, e.nombre, e.apellido1
+    FROM cliente c, empleado e
     WHERE c.codigo_empleado_rep_ventas = e.id_empleado;
     ```
 
-2. **Clientes que hayan realizado pagos y sus representantes de ventas:**
+2. **Nombre de los clientes que hayan realizado pagos junto con el nombre de sus representantes de ventas:**
     ```sql
-    SELECT DISTINCT c.nombre_cliente, e.nombre, e.apellido1 
-    FROM cliente c, empleado e, pago p 
-    WHERE c.id_cliente = p.id_cliente AND c.codigo_empleado_rep_ventas = e.id_empleado;
+    SELECT DISTINCT c.nombre_cliente, e.nombre, e.apellido1
+    FROM cliente c, empleado e, pago p
+    WHERE c.id_cliente = p.id_cliente
+    AND c.codigo_empleado_rep_ventas = e.id_empleado;
     ```
 
-3. **Clientes que no hayan realizado pagos y sus representantes de ventas:**
+3. **Nombre de los clientes que no hayan realizado pagos junto con el nombre de sus representantes de ventas:**
     ```sql
-    SELECT c.nombre_cliente, e.nombre, e.apellido1 
-    FROM cliente c, empleado e 
-    WHERE c.codigo_empleado_rep_ventas = e.id_empleado AND c.id_cliente NOT IN (SELECT id_cliente FROM pago);
+    SELECT c.nombre_cliente, e.nombre, e.apellido1
+    FROM cliente c, empleado e
+    WHERE c.codigo_empleado_rep_ventas = e.id_empleado
+    AND c.id_cliente NOT IN (SELECT id_cliente FROM pago);
     ```
 
-4. **Clientes que han hecho pagos, sus representantes y la ciudad de la oficina del representante:**
+4. **Nombre de los clientes que han hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante:**
     ```sql
-    SELECT DISTINCT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad 
-    FROM cliente c, empleado e, pago p, oficina o 
-    WHERE c.id_cliente = p.id_cliente AND c.codigo_empleado_rep_ventas = e.id_empleado AND e.codigo_oficina = o.codigo_oficina;
+    SELECT DISTINCT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad
+    FROM cliente c, empleado e, pago p, oficina o
+    WHERE c.id_cliente = p.id_cliente
+    AND c.codigo_empleado_rep_ventas = e.id_empleado
+    AND e.codigo_oficina = o.codigo_oficina;
     ```
 
-5. **Clientes que no han hecho pagos, sus representantes y la ciudad de la oficina del representante:**
+5. **Nombre de los clientes que no hayan hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante:**
     ```sql
-    SELECT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad 
-    FROM cliente c, empleado e, oficina o 
-    WHERE c.codigo_empleado_rep_ventas = e.id_empleado AND e.codigo_oficina = o.codigo_oficina AND c.id_cliente NOT IN (SELECT id_cliente FROM pago);
+    SELECT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad
+    FROM cliente c, empleado e, oficina o
+    WHERE c.codigo_empleado_rep_ventas = e.id_empleado
+    AND e.codigo_oficina = o.codigo_oficina
+    AND c.id_cliente NOT IN (SELECT id_cliente FROM pago);
     ```
 
-6. **Dirección de oficinas con clientes en Fuenlabrada:**
+6. **Dirección de las oficinas que tengan clientes en Fuenlabrada:**
     ```sql
-    SELECT DISTINCT o.direccion 
-    FROM oficina o, cliente c 
-    WHERE c.codigo_oficina = o.codigo_oficina AND c.ciudad = 'Fuenlabrada';
+    SELECT DISTINCT o.direccion
+    FROM oficina o, cliente c
+    WHERE c.codigo_oficina = o.codigo_oficina
+    AND c.ciudad = 'Fuenlabrada';
     ```
 
-7. **Clientes, sus representantes y la ciudad de la oficina del representante:**
+7. **Nombre de los clientes y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante:**
     ```sql
-    SELECT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad 
-    FROM cliente c, empleado e, oficina o 
-    WHERE c.codigo_empleado_rep_ventas = e.id_empleado AND e.codigo_oficina = o.codigo_oficina;
+    SELECT c.nombre_cliente, e.nombre, e.apellido1, o.ciudad
+    FROM cliente c, empleado e, oficina o
+    WHERE c.codigo_empleado_rep_ventas = e.id_empleado
+    AND e.codigo_oficina = o.codigo_oficina;
     ```
 
-8. **Empleados y sus jefes:**
+8. **Listado con el nombre de los empleados junto con el nombre de sus jefes:**
     ```sql
-    SELECT e1.nombre AS empleado_nombre, e2.nombre AS jefe_nombre 
-    FROM empleado e1, empleado e2 
+    SELECT e1.nombre AS empleado_nombre, e2.nombre AS jefe_nombre
+    FROM empleado e1, empleado e2
     WHERE e1.id_jefe = e2.id_empleado;
     ```
 
-9. **Empleados, sus jefes y los jefes de sus jefes:**
+9. **Listado que muestre el nombre de cada empleado, el nombre de su jefe y el nombre del jefe de su jefe:**
     ```sql
-    SELECT e1.nombre AS empleado_nombre, e2.nombre AS jefe_nombre, e3.nombre AS jefe_de_jefe_nombre 
-    FROM empleado e1 
-    JOIN empleado e2 ON e1.id_jefe = e2.id_empleado 
+    SELECT e1.nombre AS empleado_nombre, e2.nombre AS jefe_nombre, e3.nombre AS jefe_de_jefe_nombre
+    FROM empleado e1
+    JOIN empleado e2 ON e1.id_jefe = e2.id_empleado
     JOIN empleado e3 ON e2.id_jefe = e3.id_empleado;
     ```
 
-10. **Clientes que no recibieron pedidos a tiempo:**
+10. **Nombre de los clientes a los que no se les ha entregado a tiempo un pedido:**
     ```sql
-    SELECT DISTINCT c.nombre_cliente 
-    FROM cliente c, pedido p 
-    WHERE c.id_cliente = p.id_cliente AND p.fecha_entrega > p.fecha_estimada_entrega;
+    SELECT DISTINCT c.nombre_cliente
+    FROM cliente c, pedido p
+    WHERE c.id_cliente = p.id_cliente
+    AND p.fecha_entrega > p.fecha_estimada_entrega;
     ```
 
-11. **Gamas de producto compradas por cada cliente:**
+11. **Listado de las diferentes gamas de producto que ha comprado cada cliente:**
     ```sql
-    SELECT DISTINCT c.nombre_cliente, gp.nombre_gama 
-    FROM cliente c, pedido p, detalle_pedido dp, producto pr, gama_producto gp 
-    WHERE c.id_cliente = p.id_cliente AND p.numero_pedido = dp.numero_pedido AND dp.codigo_producto = pr.codigo_producto AND pr.codigo_gama = gp.codigo_gama;
+    SELECT DISTINCT c.nombre_cliente, gp.nombre_gama
+    FROM cliente c, pedido p, detalle_pedido dp, producto pr, gama_producto gp
+    WHERE c.id_cliente = p.id_cliente
+    AND p.numero_pedido = dp.numero_pedido
+    AND dp.codigo_producto = pr.codigo_producto
+    AND pr.codigo_gama = gp.codigo_gama;
     ```
 
 ## Consultas Multitabla (Composición Externa)
 
-1. **Clientes que no han realizado ningún pago:**
+1. **Listado de clientes que no han realizado ningún pago:**
     ```sql
-    SELECT c.* 
-    FROM cliente c 
-    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente 
+    SELECT c.*
+    FROM cliente c
+    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente
     WHERE t.cod_cliente IS NULL;
     ```
 
-2. **Clientes que no han realizado ningún pedido:**
+2. **Listado de clientes que no han realizado ningún pedido:**
     ```sql
-    SELECT c.* 
-    FROM cliente c 
-    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente 
+    SELECT c.*
+    FROM cliente c
+    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente
     WHERE t.cod_cliente IS NULL;
     ```
 
-3. **Clientes que no han realizado ningún pago ni pedido:**
+3. **Listado de clientes que no han realizado ningún pago ni pedido:**
     ```sql
-    SELECT c.* 
+    SELECT c.*
+    FROM cliente c
+    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente
+    LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+    WHERE t.cod_cliente IS NULL AND p.codigo_pedido IS NULL;
+    ```
+
+4. **Listado de empleados que no tienen una oficina asociada:**
+    ```sql
+    SELECT e.*
+    FROM empleado e
+    LEFT JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
+    WHERE e.codigo_oficina_empleado IS NULL;
+    ```
+
+5. **Listado de empleados que no tienen un cliente asociado:**
+    ```sql
+    SELECT e.*
+    FROM empleado e
+    LEFT JOIN cliente c ON e.id_empleado = c.codigo_empleado_rep_ventas
+    WHERE c.codigo_empleado_rep_ventas IS NULL;
+    ```
+
+6. **Listado de empleados que no tienen un cliente asociado junto con los datos de la oficina donde trabajan:**
+    ```sql
+    SELECT e.nombre, e.apellido1, o.*
+    FROM empleado e 
+    LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.id_empleado 
+    LEFT JOIN oficina o ON o.codigo_oficina = e.id_empleado 
+    WHERE c.codigo_empleado_rep_ventas IS NULL;
+    ```
+
+7. **Listado de empleados que no tienen una oficina asociada y no tienen un cliente asociado:**
+    ```sql
+    SELECT e.nombre, e.apellido1 
+    FROM empleado e 
+    LEFT JOIN oficina o ON o.codigo_oficina = e.codigo_oficina_empleado 
+    LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.id_empleado
+    WHERE e.codigo_oficina_empleado IS NULL AND c.codigo_empleado_rep_ventas IS NULL;
+    ```
+
+8. **Listado de productos que nunca han aparecido en un pedido:**
+    ```sql
+    SELECT *
+    FROM producto
+    WHERE codigo_producto NOT IN (SELECT DISTINCT codigo_producto_pedido FROM detalle_pedido);
+    ```
+
+9. **Listado de productos que nunca han aparecido en un pedido con nombre, descripción y imagen:**
+    ```sql
+    SELECT p.nombre, p.descripcion, g.imagen
+    FROM producto p join gama_producto g on p.gama_producto = g.id_gama
+    WHERE codigo_producto NOT IN (SELECT DISTINCT codigo_producto_pedido FROM detalle_pedido);
+    ```
+
+10. **Oficinas donde no trabajan empleados que hayan sido representantes de ventas para clientes que hayan comprado productos de la gama Frutales:**
+    ```sql
+    SELECT *
+    FROM oficina o
+    WHERE codigo_oficina NOT IN (
+        SELECT DISTINCT codigo_oficina_empleado
+        FROM empleado
+        WHERE id_empleado IN (
+            SELECT DISTINCT codigo_empleado_rep_ventas
+            FROM cliente
+            JOIN transaccion ON cliente.id_cliente = transaccion.cod_cliente
+            JOIN detalle_pedido ON transaccion.id_transaccion = detalle_pedido.codigo_pedido_detalle
+            JOIN producto ON detalle_pedido.codigo_producto_pedido = producto.codigo_producto
+            WHERE producto.gama_producto = 'Frutales'
+        )
+    );
+    ```
+
+11. **Listado de clientes que han realizado pedidos pero no han realizado pagos:**
+    ```sql
+    SELECT c.nombre_cliente
     FROM cliente c 
-    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente 
     LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido 
-    WHERE t.cod_cliente IS NULL AND p.codigo_cliente_pedido IS NULL;
+    WHERE tipo_pago IS NULL;
     ```
 
-4. **Clientes que no han realizado ningún pago ni pedido, y su representante de ventas:**
+12. **Listado de empleados sin clientes asociados y nombre de su jefe asociado:**
     ```sql
-    SELECT c.*, e.nombre 
-    FROM cliente c 
-    LEFT JOIN transaccion t ON c.id_cliente = t.cod_cliente 
-    LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido 
-    LEFT JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado 
-    WHERE t.cod_cliente IS NULL AND p.codigo_cliente_pedido IS NULL;
+    SELECT e.*, jefe.nombre AS nombre_jefe, jefe.apellido1 AS apellido1_jefe
+    FROM empleado e
+    LEFT JOIN empleado jefe ON e.codigo_jefe = jefe.id_empleado
+    LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.id_empleado
+    WHERE c.codigo_empleado_rep_ventas IS NULL;
     ```
 
-## Consultas con Agrupamiento y Agregación
+## Consultas Resumen
 
-1. **Cantidad de oficinas por ciudad:**
+1. **Número total de empleados en la compañía:**
     ```sql
-    SELECT ciudad, COUNT(*) AS cantidad_oficinas 
-    FROM oficina 
-    GROUP BY ciudad;
+    SELECT COUNT(*) AS total_empleados FROM empleado;
     ```
 
-2. **Clientes por país:**
+2. **Número de clientes por país:**
     ```sql
-    SELECT pais, COUNT(*) AS cantidad_clientes 
+    SELECT pais, COUNT(*) AS total_clientes 
     FROM cliente 
     GROUP BY pais;
     ```
 
-3. **Pedidos por estado:**
+3. **Pago promedio en 2009:**
     ```sql
-    SELECT estado_pedido, COUNT(*) AS cantidad_pedidos 
+    SELECT AVG(total_transaccion) AS pago_medio 
+    FROM transaccion 
+    WHERE YEAR(fecha_transaccion) = 2009;
+    ```
+
+4. **Número de pedidos por estado en orden descendente:**
+    ```sql
+    SELECT estado_pedido, COUNT(*) AS total_pedidos 
     FROM pedido 
-    GROUP BY estado_pedido;
+    GROUP BY estado_pedido 
+    ORDER BY total_pedidos DESC;
     ```
 
-4. **Pedidos por país de cliente:**
+5. **Precio de venta del producto más caro y más barato:**
     ```sql
-    SELECT c.pais, COUNT(p.codigo_pedido) AS cantidad_pedidos 
-    FROM pedido p 
-    JOIN cliente c ON p.codigo_cliente_pedido = c.id_cliente 
-    GROUP BY c.pais;
+    SELECT 
+      MAX(precio_venta) AS precio_mas_caro,
+      MIN(precio_venta) AS precio_mas_barato 
+    FROM producto;
     ```
 
-5. **Total pagado por cliente en 2008:**
+6. **Número total de clientes en la empresa:**
     ```sql
-    SELECT t.cod_cliente, SUM(t.importe) AS total_pagado 
-    FROM transaccion t 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY t.cod_cliente;
+    SELECT COUNT(*) AS total_clientes FROM cliente;
     ```
 
-6. **Total pagado por cliente en 2008 ordenado por total pagado:**
+7. **Número de clientes en Madrid:**
     ```sql
-    SELECT t.cod_cliente, SUM(t.importe) AS total_pagado 
-    FROM transaccion t 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY t.cod_cliente 
-    ORDER BY total_pagado DESC;
+    SELECT COUNT(*) AS total_clientes_madrid 
+    FROM cliente 
+    WHERE ciudad = 'Madrid';
     ```
 
-7. **Ingresos mensuales de la empresa en 2008:**
+8. **Número de clientes por ciudad que comienza con M:**
     ```sql
-    SELECT MONTH(t.fecha_transaccion) AS mes, SUM(t.importe) AS ingresos_mensuales 
-    FROM transaccion t 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY mes 
-    ORDER BY mes;
+    SELECT ciudad, COUNT(*) AS total_clientes 
+    FROM cliente 
+    WHERE ciudad LIKE 'M%' 
+    GROUP BY ciudad;
     ```
 
-8. **Ingresos mensuales de la empresa por país en 2008:**
+9. **Representantes de ventas y número de clientes que atienden:**
     ```sql
-    SELECT c.pais, MONTH(t.fecha_transaccion) AS mes, SUM(t.importe) AS ingresos_mensuales 
-    FROM transaccion t 
-    JOIN cliente c ON t.cod_cliente = c.id_cliente 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY c.pais, mes 
-    ORDER BY c.pais, mes;
-    ```
-
-9. **Pedidos no entregados a tiempo por país de cliente:**
-    ```sql
-    SELECT c.pais, COUNT(p.codigo_pedido) AS cantidad_pedidos_no_a_tiempo 
-    FROM pedido p 
-    JOIN cliente c ON p.codigo_cliente_pedido = c.id_cliente 
-    WHERE p.fecha_entrega > p.fecha_esperada 
-    GROUP BY c.pais;
-    ```
-
-10. **Cantidad de productos comprados por cliente:**
-    ```sql
-    SELECT c.nombre_cliente, COUNT(dp.codigo_producto) AS cantidad_productos 
+    SELECT e.nombre AS nombre_representante, e.apellido1 AS apellido_representante, COUNT(c.id_cliente) AS total_clientes 
     FROM cliente c 
-    JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido 
-    JOIN detalle_pedido dp ON p.codigo_pedido = dp.numero_pedido 
-    GROUP BY c.nombre_cliente;
+    JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado 
+    GROUP BY e.id_empleado, e.nombre, e.apellido1;
     ```
 
-11. **Cantidad de productos comprados por cliente ordenado por cantidad:**
+10. **Número de clientes sin representante de ventas:**
     ```sql
-    SELECT c.nombre_cliente, COUNT(dp.codigo_producto) AS cantidad_productos 
-    FROM cliente c 
-    JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido 
-    JOIN detalle_pedido dp ON p.codigo_pedido = dp.numero_pedido 
-    GROUP BY c.nombre_cliente 
-    ORDER BY cantidad_productos DESC;
+    SELECT COUNT(*) AS clientes_sin_representante 
+    FROM cliente 
+    WHERE codigo_empleado_rep_ventas IS NULL;
     ```
 
-12. **Total de ingresos por cliente:**
+11. **Fecha del primer y último pago por cliente:**
     ```sql
-    SELECT c.nombre_cliente, SUM(t.importe) AS total_ingresos 
+    SELECT 
+      c.nombre_cliente, 
+      c.apellido1_cliente, 
+      c.apellido2_cliente, 
+      MIN(t.fecha_transaccion) AS primer_pago, 
+      MAX(t.fecha_transaccion) AS ultimo_pago 
     FROM cliente c 
     JOIN transaccion t ON c.id_cliente = t.cod_cliente 
-    GROUP BY c.nombre_cliente;
+    GROUP BY c.id_cliente, c.nombre_cliente, c.apellido1_cliente, c.apellido2_cliente;
     ```
 
-13. **Clientes con más de 5 productos comprados:**
+12. **Número de productos diferentes en cada pedido:**
     ```sql
-    SELECT c.nombre_cliente, COUNT(dp.codigo_producto) AS cantidad_productos 
-    FROM cliente c 
-    JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido 
-    JOIN detalle_pedido dp ON p.codigo_pedido = dp.numero_pedido 
-    GROUP BY c.nombre_cliente 
-    HAVING cantidad_productos > 5;
+    SELECT 
+      codigo_pedido_detalle, 
+      COUNT(DISTINCT codigo_producto_pedido) AS productos_diferentes 
+    FROM detalle_pedido 
+    GROUP BY codigo_pedido_detalle;
     ```
 
-14. **Clientes con más de 1000 euros en pagos realizados en 2008:**
+13. **Suma de la cantidad total de productos en cada pedido:**
     ```sql
-    SELECT t.cod_cliente, SUM(t.importe) AS total_pagado 
-    FROM transaccion t 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY t.cod_cliente 
-    HAVING total_pagado > 1000;
+    SELECT 
+      codigo_pedido_detalle, 
+      SUM(cantidad) AS cantidad_total_productos 
+    FROM detalle_pedido 
+    GROUP BY codigo_pedido_detalle;
     ```
 
-15. **Empleados con al menos 5 clientes representados:**
+14. **Top 20 productos más vendidos y número total de unidades vendidas:**
     ```sql
-    SELECT e.nombre, COUNT(c.id_cliente) AS cantidad_clientes 
-    FROM empleado e 
-    JOIN cliente c ON e.id_empleado = c.codigo_empleado_rep_ventas 
-    GROUP BY e.nombre 
-    HAVING cantidad_clientes >= 5;
+    SELECT 
+      p.nombre, 
+      SUM(dp.cantidad) AS total_unidades_vendidas 
+    FROM detalle_pedido dp 
+    JOIN producto p ON dp.codigo_producto_pedido = p.codigo_producto 
+    GROUP BY p.codigo_producto 
+    ORDER BY total_unidades_vendidas DESC 
+    LIMIT 20;
     ```
 
-16. **Empleados con al menos 1000 euros en pagos realizados por sus clientes en 2008:**
+15. **Facturación total de la empresa (base imponible, IVA y total facturado):**
     ```sql
-    SELECT e.nombre, SUM(t.importe) AS total_pagado 
-    FROM empleado e 
-    JOIN cliente c ON e.id_empleado = c.codigo_empleado_rep_ventas 
-    JOIN transaccion t ON c.id_cliente = t.cod_cliente 
-    WHERE YEAR(t.fecha_transaccion) = 2008 
-    GROUP BY e.nombre 
-    HAVING total_pagado > 1000;
+    SELECT 
+        SUM(dp.cantidad * p.precio_venta) AS base_imponible,
+        SUM(dp.cantidad * p.precio_venta) * 0.21 AS iva,
+        SUM(dp.cantidad * p.precio_venta) * 1.21 AS total_facturado
+    FROM 
+        detalle_pedido dp
+    JOIN 
+        producto p ON dp.codigo_producto_pedido = p.codigo_producto;
     ```
+
+16. **Facturación total de la empresa agrupada por código de producto:**
+    ```sql
+    SELECT 
+        dp.codigo_producto_pedido,
+        SUM(dp.cantidad * p.precio_venta) AS base_imponible,
+        SUM(dp.cantidad * p.precio_venta) * 0.21 AS iva,
+        SUM(dp.cantidad * p.precio_venta) * 1.21 AS total_facturado
+    FROM 
+        detalle_pedido dp
+    JOIN 
+        producto p ON dp.codigo_producto_pedido = p.codigo_producto
+    GROUP BY 
+        dp.codigo_producto_pedido;
+    ```
+
+17. **Facturación total de la empresa por código de producto filtrada por códigos que empiecen por "OR":**
+    ```sql
+    SELECT 
+        dp.codigo_producto_pedido,
+        SUM(dp.cantidad * p.precio_venta) AS base_imponible,
+        SUM(dp.cantidad * p.precio_venta) * 0.21 AS iva,
+        SUM(dp.cantidad * p.precio_venta) * 1.21 AS total_facturado
+    FROM 
+        detalle_pedido dp
+    JOIN 
+        producto p ON dp.codigo_producto_pedido = p.codigo_producto
+    WHERE 
+        dp.codigo_producto_pedido LIKE 'OR%'
+    GROUP BY 
+        dp.codigo_producto_pedido;
+    ```
+
+18. **Ventas totales de productos facturados más de 3000 euros:**
+    ```sql
+    SELECT 
+        p.nombre,
+        SUM(dp.cantidad) AS unidades_vendidas,
+        SUM(dp.cantidad * p.precio_venta) AS total_facturado,
+        SUM(dp.cantidad * p.precio_venta) * 1.21 AS total_facturado_con_iva
+    FROM 
+        detalle_pedido dp
+    JOIN 
+        producto p ON dp.codigo_producto_pedido = p.codigo_producto
+    GROUP BY 
+        p.codigo_producto, p.nombre
+    HAVING 
+        total_facturado > 3000;
+    ```
+
+19. **Suma total de todos los pagos por año:**
+    ```sql
+    SELECT 
+        YEAR(fecha_pedido) AS ano,
+        SUM(cantidad * precio_unidad) AS total_pago_anual
+    FROM 
+        pedido p
+    JOIN 
+        detalle_pedido dp ON dp.codigo_pedido_detalle = p.codigo_pedido
+    GROUP BY 
+        YEAR(fecha_pedido);
+    ```
+
+-- Subconsultas
+
+-- 1. Nombre del cliente con mayor límite de crédito.
+SELECT nombre_cliente
+FROM cliente
+WHERE limite_credito = (
+    SELECT MAX(limite_credito)
+    FROM cliente
+);
+
+-- 2. Nombre del producto con el precio de venta más caro.
+SELECT nombre
+FROM producto
+WHERE precio_venta = (
+    SELECT MAX(precio_venta)
+    FROM producto
+);
+
+-- 3. Nombre del producto con más unidades vendidas.
+SELECT p.nombre
+FROM producto p
+JOIN detalle_pedido dp ON p.codigo_producto = dp.codigo_producto_pedido
+GROUP BY p.nombre
+ORDER BY SUM(dp.cantidad) DESC
+LIMIT 1;
+
+-- 4. Clientes con límite de crédito mayor que los pagos que han realizado.
+SELECT c.nombre_cliente
+FROM cliente c
+WHERE limite_credito > (
+    SELECT SUM(dp.cantidad * dp.precio_unidad)
+    FROM pedido p
+    JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle
+    WHERE p.codigo_cliente_pedido = c.id_cliente
+);
+
+-- 5. Producto con más unidades en stock.
+SELECT nombre
+FROM producto
+WHERE cantidad_stock = (
+    SELECT MAX(cantidad_stock)
+    FROM producto
+);
+
+-- 6. Producto con menos unidades en stock.
+SELECT nombre
+FROM producto
+WHERE cantidad_stock = (
+    SELECT MIN(cantidad_stock)
+    FROM producto
+);
+
+-- 7. Nombre, apellidos y email de los empleados a cargo de Alberto Soria.
+SELECT nombre, apellido1, apellido2, email
+FROM empleado
+WHERE codigo_jefe = (
+    SELECT id_empleado
+    FROM empleado
+    WHERE nombre = 'Alberto' AND apellido1 = 'Soria'
+);
+
+-- Consultas Variadas
+
+-- 1. Listado de clientes con nombre y número de pedidos realizados.
+SELECT c.nombre_cliente AS nombre_cliente, 
+       COUNT(dp.codigo_pedido_detalle) AS numero_pedidos
+FROM cliente c
+LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+LEFT JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle
+GROUP BY c.nombre_cliente;
+
+-- 2. Listado de clientes con nombre y total pagado.
+SELECT c.nombre_cliente, 
+       COALESCE(SUM(dp.precio_unidad * dp.cantidad), 0) AS total_pagado
+FROM cliente c
+LEFT JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+JOIN detalle_pedido dp ON p.codigo_pedido = dp.codigo_pedido_detalle 
+GROUP BY c.nombre_cliente;
+
+-- 3. Clientes que hicieron pedidos en 2008 ordenados alfabéticamente.
+SELECT DISTINCT c.nombre_cliente
+FROM cliente c
+JOIN pedido p ON c.id_cliente = p.codigo_cliente_pedido
+WHERE YEAR(p.fecha_pedido) = 2008
+ORDER BY c.nombre_cliente;
+
+-- 4. Cliente, representante de ventas y teléfono de la oficina para clientes sin pagos.
+SELECT c.nombre_cliente, 
+       e.nombre AS nombre_representante, 
+       e.apellido1 AS apellido_representante, 
+       o.telefono AS telefono_oficina
+FROM cliente c
+JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
+JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
+WHERE NOT EXISTS (SELECT 1 FROM pedido p WHERE c.id_cliente = p.codigo_cliente_pedido);
+
+-- 5. Listado de clientes con representantes de ventas y ciudades de sus oficinas.
+SELECT c.nombre_cliente AS nombre_cliente, 
+       e.nombre AS nombre_representante, 
+       e.apellido1 AS apellido_representante, 
+       o.ciudad AS ciudad_oficina
+FROM cliente c
+JOIN empleado e ON c.codigo_empleado_rep_ventas = e.id_empleado
+JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina;
+
+-- 6. Empleados no representantes de ventas con nombre, apellidos, puesto y teléfono de oficina.
+SELECT e.nombre, 
+       e.apellido1, 
+       e.apellido2, 
+       e.puesto, 
+       o.telefono
+FROM empleado e
+JOIN oficina o ON e.codigo_oficina_empleado = o.codigo_oficina
+WHERE e.id_empleado NOT IN (SELECT codigo_empleado_rep_ventas FROM cliente);
+
+-- 7. Ciudades con número de empleados en sus oficinas.
+SELECT o.ciudad, 
+       COUNT(e.id_empleado) AS numero_empleados
+FROM oficina o
+JOIN empleado e ON o.codigo_oficina = e.codigo_oficina_empleado
+GROUP BY o.ciudad;
+
+
+
