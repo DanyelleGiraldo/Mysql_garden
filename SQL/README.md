@@ -518,7 +518,7 @@
         YEAR(fecha_pedido);
     ```
 
--- Subconsultas
+## Subconsultas
 
 1. **Nombre del cliente con mayor límite de crédito:**
     ```sql
@@ -574,7 +574,7 @@
     WHERE codigo_jefe = (SELECT id_empleado FROM empleado WHERE nombre = 'Alberto' AND apellido1 = 'Soria');
     ```
 
--- Consultas variadas
+## Consultas variadas
 
 1. **Listado de clientes con cantidad de pedidos realizados:**
     ```sql
